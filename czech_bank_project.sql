@@ -70,7 +70,7 @@ JOIN district d
 ON d.A1 = a.district_id
 GROUP BY 1) sub1;
 
--- Now which districts are above this average?
+-- Which districts are above this average?
 CREATE TEMPORARY TABLE avg_debt_ratio 
 (SELECT AVG(debt_ratio) AS avg_debt_ratio
 FROM (SELECT d.A2 AS district_name
@@ -96,3 +96,92 @@ ON d.A1 = a.district_id
 GROUP BY 1
 HAVING debt_ratio > (SELECT * FROM avg_debt_ratio) AND unpaid_loans > 2 -- disconsider low quantities of loans
 ORDER BY current_loans DESC, debt_ratio DESC;
+
+-- Now let's add the debt ratio information to the district table and look for possible patterns
+SELECT d.A2 AS district_name
+	, d.A3 AS district_region
+    , d.A4 AS inhabitants
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+    , AVG((COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id))) OVER(PARTITION BY d.A3) AS avg_region_debt_ratio
+    , d.A11 AS avg_salary
+    , ROUND((d.A12 + d.A13)/2, 2) AS avg_unemployment_rate
+    , d.A14 AS entrepreneur_per_1000
+    , ROUND((d.A15 + d.A16)/2) AS avg_crimes
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1, 2, 3, 8, 9, 10, 11
+HAVING unpaid_loans > 2;
+
+-- Could there be a relationship between detb ratio and avg_salary?
+SELECT d.A2 AS district_name
+	, d.A3 AS district_region
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+    , AVG((COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id))) OVER(PARTITION BY d.A3) AS avg_region_debt_ratio
+    , d.A11 AS avg_salary
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1, 2, 7
+HAVING unpaid_loans > 2
+ORDER BY avg_salary;
+
+-- What about debt ratio and unemployment rate?
+SELECT d.A2 AS district_name
+	, d.A3 AS district_region
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+    , AVG((COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id))) OVER(PARTITION BY d.A3) AS avg_region_debt_ratio
+    , ROUND((d.A12 + d.A13)/2, 2) AS avg_unemployment_rate
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1, 2, 7
+HAVING unpaid_loans > 2
+ORDER BY avg_unemployment_rate;
+
+-- Maybe debt ratio and entrepreneur per 1000?
+SELECT d.A2 AS district_name
+	, d.A3 AS district_region
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+    , AVG((COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id))) OVER(PARTITION BY d.A3) AS avg_region_debt_ratio
+    , d.A14 AS entrepreneur_per_1000
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1, 2, 7
+HAVING unpaid_loans > 2
+ORDER BY entrepreneur_per_1000;
+
+-- Or debt ratio and total crimes?
+
+SELECT d.A2 AS district_name
+	, d.A3 AS district_region
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+    , AVG((COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id))) OVER(PARTITION BY d.A3) AS avg_region_debt_ratio
+    , ROUND((d.A15 + d.A16)/2) AS avg_crimes
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1, 2, 7
+HAVING unpaid_loans > 2
+ORDER BY avg_crimes;
