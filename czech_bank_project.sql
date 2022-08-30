@@ -13,9 +13,14 @@ Identify the bad clients that have to watch carefully to minimize the losses
 More details: <https://github.com/ironhack-edu/data_case_study_2>
 */
 
+/*
+Good clients: positive balance, paid loan or no loan needed
+Bad clients: negative balance, unpaid or unnaproved loan
+*/
+
 USE bank;
 
--- In which districts do clients ask for loans the most?
+-- Which districts have more loans in progress?
 SELECT d.A2 AS district_name
     , COUNT(l.account_id) AS current_loans
 FROM loan l
@@ -26,7 +31,7 @@ ON d.A1 = a.district_id
 GROUP BY 1
 ORDER BY current_loans DESC;
 
--- What are the populations in these districts?
+-- What are the populations of these districts?
 SELECT d.A2 AS district_name
     , d.A4 AS population
     , COUNT(l.account_id) AS current_loans
@@ -38,7 +43,7 @@ ON d.A1 = a.district_id
 GROUP BY 1, 2
 ORDER BY current_loans DESC;
 
--- Which districts have the highest loan / population ratio?
+-- Which districts have the highest loan in progress / population ratio?
 SELECT d.A2 AS district_name
     , d.A4 AS population
     , COUNT(l.account_id) AS current_loans
@@ -66,6 +71,7 @@ ON d.A1 = a.district_id
 GROUP BY 1) sub1;
 
 -- Now which districts are above this average?
+CREATE TEMPORARY TABLE avg_debt_ratio 
 (SELECT AVG(debt_ratio) AS avg_debt_ratio
 FROM (SELECT d.A2 AS district_name
     , COUNT(l.account_id) AS current_loans
@@ -77,3 +83,16 @@ ON a.account_id = l.account_id
 JOIN district d
 ON d.A1 = a.district_id
 GROUP BY 1) sub1);
+
+SELECT d.A2 AS district_name
+    , COUNT(l.account_id) AS current_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) AS unpaid_loans
+    , COUNT(CASE WHEN l.status IN ('B', 'D') THEN 0 ELSE NULL END) / COUNT(l.account_id) AS debt_ratio
+FROM loan l
+JOIN account a
+ON a.account_id = l.account_id
+JOIN district d
+ON d.A1 = a.district_id
+GROUP BY 1
+HAVING debt_ratio > (SELECT * FROM avg_debt_ratio) AND unpaid_loans > 2 -- disconsider low quantities of loans
+ORDER BY current_loans DESC, debt_ratio DESC;
