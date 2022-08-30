@@ -49,6 +49,17 @@ Scenario: You are working as an analyst for a bank. The bank offers services to 
  
 #### Simply put, there does not seem to be a correlation between district variables (listed below) and the debt ratio of each district. Nevertheless, the districts Bruntal and Opava both have a debt ratio (rate of unpaid loans versus total loans given) bigger than the rest of their region.
 
+District variables: 
+- number of municipalities with under 499 inhabitants
+- number of municipalities between 500 and 1999 inhabitants
+- number of municipalities between 2000 and 9999 inhabitants
+- number of municipalities with over 10000 inhabitants
+- average salary
+- unemployment rate '95
+- unemployment rate '96
+- number of entrepreneurs per 1000 inhabitants
+- number of commited crimes
+
 ## Contact
   
   If you have any questions or comments, please let me know!
