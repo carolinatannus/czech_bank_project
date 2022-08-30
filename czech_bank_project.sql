@@ -13,7 +13,7 @@ Identify the bad clients that have to watch carefully to minimize the losses
 More details: <https://github.com/ironhack-edu/data_case_study_2>
 */
 
-/*
+/* Definition of good and bad customers
 Good clients: positive balance, paid loan or no loan needed
 Bad clients: negative balance, unpaid or unnaproved loan
 */
@@ -319,6 +319,4 @@ District variables:
 
 Nevertheless, Bruntal and Opava both have a debt ratio bigger than the rest of their region.
 */
-
-
 
