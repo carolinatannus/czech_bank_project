@@ -194,7 +194,6 @@ ORDER BY entrepreneur_per_1000;
 -- At first there does not seem to be a relation between these variables
 
 -- Or debt ratio and total crimes?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , COUNT(l.account_id) AS current_loans
@@ -214,7 +213,6 @@ ORDER BY avg_crimes;
 -- At first there does not seem to be a relation between these variables
 
 -- Could there be any relationship between the number of municipalities of different sizes and the debt ratio?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , d.A4 AS inhabitants
@@ -235,7 +233,6 @@ GROUP BY 1, 2, 3, 4, 5, 6, 7
 HAVING unpaid_loans > 2;
 
 -- Municipalities with under 499 inhabitants?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , d.A4 AS inhabitants
@@ -254,7 +251,6 @@ GROUP BY 1, 2, 3, 4
 HAVING unpaid_loans > 2 AND number_mun_less_499 > 0;
 
 -- Municipalities with between 500 and 1999 inhabitants?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , d.A4 AS inhabitants
@@ -273,7 +269,6 @@ GROUP BY 1, 2, 3, 4
 HAVING unpaid_loans > 2 AND number_mun_bet500_1999 > 0;
 
 -- Municipalities between 2000 and 9999 inhabitants?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , d.A4 AS inhabitants
@@ -292,7 +287,6 @@ GROUP BY 1, 2, 3, 4
 HAVING unpaid_loans > 2 AND number_mun_bet2000_9999 > 0;
 
 -- Municipalities with more than 10000 inhabitants?
-
 SELECT d.A2 AS district_name
 	, d.A3 AS district_region
     , d.A4 AS inhabitants
@@ -325,4 +319,6 @@ District variables:
 
 Nevertheless, Bruntal and Opava both have a debt ratio bigger than the rest of their region.
 */
+
+
 
